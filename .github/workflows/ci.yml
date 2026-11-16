@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, test, smoke (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    defaults:
+      run:
+        working-directory: teachmehipaa-mcp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: teachmehipaa-mcp
+          persist-credentials: false
+      # @teachmehipaa/node is not on npm yet: build it from its main branch
+      # and install the packed tarball (see CONTRIBUTING.md).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: TeachMeHIPAA/teachmehipaa-node
+          ref: main
+          path: teachmehipaa-node
+          persist-credentials: false
+      # No npm cache: there is no lockfile until the SDK is published.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Build the SDK
+        working-directory: teachmehipaa-node
+        run: npm ci && npm run build
+      - name: Install dependencies with the local SDK
+        run: scripts/use-local-sdk.sh ../teachmehipaa-node
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:smoke
+      - run: npm pack --dry-run
