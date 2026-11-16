@@ -2,3 +2,5 @@ dist/
 coverage/
 node_modules/
 .local-sdk/
+# Vendored byte-for-byte from the hosted server; never reformat.
+tool-catalog.json

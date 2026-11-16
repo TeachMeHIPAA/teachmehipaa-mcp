@@ -37,6 +37,7 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "test": "vitest run",
+    "catalog:check": "vitest run test/catalog.test.ts",
     "test:smoke": "vitest run --config vitest.smoke.config.ts"
   },
   "dependencies": {

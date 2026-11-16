@@ -1,0 +1,646 @@
+{
+  "version": 1,
+  "tools": [
+    {
+      "name": "create_learner",
+      "title": "Create learner",
+      "description": "Enroll one person in a course: takes one seat and sends the invite email. If the email or externalId already names an active learner, returns that learner and takes no seat, so repeating is safe. Fails with seat_unavailable when no seat is free (check get_seat_inventory). Requires scope learners:write.",
+      "scopes": [
+        "learners:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+            "description": "The learner's email address."
+          },
+          "name": {
+            "description": "Full name, as printed on the certificate.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "externalId": {
+            "description": "Your system's id for this person (unique per organization).",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "delivery": {
+            "description": "email (default): we send the invite. none: no email; the result carries a single-use joinUrl you must hand to the learner.",
+            "type": "string",
+            "enum": [
+              "email",
+              "none"
+            ]
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "create_learner_launch_link",
+      "title": "Create learner launch link",
+      "description": "Mint a single-use sign-in URL into the training app for one learner, valid five minutes. It is a bearer link: give it only to that learner. Refused for admins, removed learners and learners who have not accepted their invite yet. Requires scope learners:write.",
+      "scopes": [
+        "learners:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "learnerId": {
+            "type": "string",
+            "pattern": "^sub_[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "The learner's id (sub_…), as returned by list_learners."
+          },
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "learnerId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_certificate",
+      "title": "Get certificate",
+      "description": "Get one certificate record of the organization by id. Requires scope certificates:read.",
+      "scopes": [
+        "certificates:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "certificateId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "description": "The certificate id, from list_certificates."
+          }
+        },
+        "required": [
+          "certificateId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_compliance_summary",
+      "title": "Get compliance summary",
+      "description": "Organization-wide training compliance for one course: how many learners are compliant, expiring soon, expired, in progress, not started or bounced, and the compliant rate. For the people behind a number, call list_learners with the matching status. Requires scope compliance:read.",
+      "scopes": [
+        "compliance:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_learner",
+      "title": "Get learner",
+      "description": "Get one learner's training state in one course: status, invite/start/completion dates and current certificate. Requires scope learners:read.",
+      "scopes": [
+        "learners:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "learnerId": {
+            "type": "string",
+            "pattern": "^sub_[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "The learner's id (sub_…), as returned by list_learners."
+          },
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "learnerId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_seat_inventory",
+      "title": "Get seat inventory",
+      "description": "How many seats the organization holds and how many are free to enroll new learners. Each create_learner takes one seat. Requires scope enrollments:read.",
+      "scopes": [
+        "enrollments:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_audit_events",
+      "title": "List audit events",
+      "description": "Read the organization's audit trail, newest first: who changed what (enrollment transitions, member and learner changes, certificates, seats, API clients). A short page with a cursor means keep paging. Requires scope audit:read.",
+      "scopes": [
+        "audit:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "Only audit events of this family.",
+            "type": "string",
+            "enum": [
+              "enrollment.transition",
+              "organization.updated",
+              "organization.closed",
+              "organization.reopened",
+              "member.role_changed",
+              "member.transferred",
+              "member.removed",
+              "certificate.issued",
+              "certificate.revoked",
+              "seat.granted",
+              "api_client.created",
+              "api_client.secret_rotated",
+              "api_client.revoked",
+              "learner.updated",
+              "learner.launch_link_created",
+              "api_client.updated"
+            ]
+          },
+          "transition": {
+            "description": "Within enrollment.transition, only this transition.",
+            "type": "string",
+            "enum": [
+              "bounce",
+              "start",
+              "beginAssessment",
+              "submitAssessment",
+              "certify",
+              "revokeCert",
+              "archive",
+              "unarchive",
+              "reinvite",
+              "cancelInvite"
+            ]
+          },
+          "learnerId": {
+            "description": "Only events about this learner.",
+            "type": "string",
+            "pattern": "^sub_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "since": {
+            "description": "Inclusive lower bound, ISO 8601.",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          },
+          "until": {
+            "description": "Inclusive upper bound, ISO 8601.",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          },
+          "limit": {
+            "description": "Page size, 1-100. Defaults to 20.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "description": "The nextCursor of the previous page, to read the next one.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_certificates",
+      "title": "List certificates",
+      "description": "List the organization's certificate records (VALID, EXPIRED or REVOKED), every course and cycle. Pass learnerId for one person's full history. Paginated with cursor. Requires scope certificates:read.",
+      "scopes": [
+        "certificates:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "learnerId": {
+            "description": "Only this learner's certificates (all of them, unpaged).",
+            "type": "string",
+            "pattern": "^sub_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "limit": {
+            "description": "Page size, 1-100. Defaults to 20.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "description": "The nextCursor of the previous page, to read the next one.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_courses",
+      "title": "List courses",
+      "description": "List the public TeachMeHIPAA course catalog (course ids, titles, passing score). Use a courseId from here in learner and compliance tools.",
+      "scopes": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "limit": {
+            "description": "Page size, 1-100. Defaults to 20.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "description": "The nextCursor of the previous page, to read the next one.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_learners",
+      "title": "List learners",
+      "description": "List the organization's learners for one course with their training status (not_started, invite_bounced, in_progress, compliant, expiring_soon, expired, removed) and current certificate. Filter by status, or look one person up by email or externalId. Paginated: pass nextCursor back as cursor for the next page. Requires scope learners:read.",
+      "scopes": [
+        "learners:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Only learners in this status.",
+            "type": "string",
+            "enum": [
+              "not_started",
+              "invite_bounced",
+              "in_progress",
+              "compliant",
+              "expiring_soon",
+              "expired",
+              "removed"
+            ]
+          },
+          "email": {
+            "description": "Find the one learner with this email.",
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          },
+          "externalId": {
+            "description": "Find the one learner with this external (HRIS) id.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "limit": {
+            "description": "Page size, 1-100. Defaults to 20.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "description": "The nextCursor of the previous page, to read the next one.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_org_events",
+      "title": "List organization events",
+      "description": "Read the organization's event log (the same events webhooks deliver, kept 30 days), oldest first: learner invited/started/certified/expiring/expired/removed, seats. Resume with after = the last eventId seen. Requires scope webhooks:manage or audit:read.",
+      "scopes": [
+        "webhooks:manage",
+        "audit:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "after": {
+            "description": "The last eventId already seen (a page's nextCursor).",
+            "type": "string",
+            "pattern": "^evt_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "type": {
+            "description": "Only events of this type.",
+            "type": "string",
+            "enum": [
+              "enrollment.certified",
+              "seat.consumed",
+              "seat.freed",
+              "learner.invited",
+              "learner.started",
+              "learner.certified",
+              "learner.expiring",
+              "learner.expired",
+              "learner.removed",
+              "invite.bounced",
+              "certificate.revoked",
+              "seats.low"
+            ]
+          },
+          "limit": {
+            "description": "Page size, 1-100. Defaults to 20.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "offboard_learner",
+      "title": "Offboard learner",
+      "description": "Remove a person from the organization's training. A learner who never started has the invite cancelled and the seat returned; one who started loses their membership (history is kept). Admins cannot be offboarded. Repeating on a removed learner is a no-op. Requires scope learners:write.",
+      "scopes": [
+        "learners:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "learnerId": {
+            "type": "string",
+            "pattern": "^sub_[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "The learner's id (sub_…), as returned by list_learners."
+          },
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "learnerId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "remind_learner",
+      "title": "Remind learner",
+      "description": "Email a learner a reminder to finish their training. Each call sends another email. Requires scope learners:write.",
+      "scopes": [
+        "learners:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "learnerId": {
+            "type": "string",
+            "pattern": "^sub_[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "The learner's id (sub_…), as returned by list_learners."
+          },
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "learnerId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "update_learner",
+      "title": "Update learner",
+      "description": "Change a learner's name or externalId (externalId null clears it). The name is what the certificate prints. Admins and people in more than one organization cannot be renamed through the API. Requires scope learners:write.",
+      "scopes": [
+        "learners:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "learnerId": {
+            "type": "string",
+            "pattern": "^sub_[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "The learner's id (sub_…), as returned by list_learners."
+          },
+          "courseId": {
+            "description": "Course id. Defaults to the organization's default course.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "name": {
+            "description": "New full name.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "externalId": {
+            "description": "New external id, or null to clear it.",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "learnerId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "verify_certificate",
+      "title": "Verify certificate",
+      "description": "Check a certificate behind a tme.so verification link, as anyone holding the link can: valid, expired or revoked, with the name and course printed on it. Works for any organization's certificate.",
+      "scopes": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "tinyId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "description": "The id at the end of a tme.so verification link, e.g. cAbC123xYz789 for https://tme.so/cAbC123xYz789."
+          }
+        },
+        "required": [
+          "tinyId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "whoami",
+      "title": "Who am I",
+      "description": "Show which TeachMeHIPAA organization and API client this server is connected as, the scopes the client was granted, and when the current access token expires. Call this first when a tool answers 403.",
+      "scopes": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  ]
+}
