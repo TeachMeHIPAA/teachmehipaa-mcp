@@ -1,4 +1,4 @@
-import type { Page } from "@teachmehipaa/node";
+import type { Page } from "teachmehipaa";
 
 import { compact } from "./compact.js";
 import {

@@ -1,9 +1,8 @@
 {
   "name": "@teachmehipaa/mcp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Local (stdio) MCP server for the TeachMeHIPAA Developer API",
   "license": "MIT",
-  "private": true,
   "type": "module",
   "repository": {
     "type": "git",
@@ -42,7 +41,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",
-    "@teachmehipaa/node": "^1.0.0",
+    "teachmehipaa": "^1.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

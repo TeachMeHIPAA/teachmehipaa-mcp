@@ -1,4 +1,4 @@
-import TeachMeHipaa, { type Clock, type Transport } from "@teachmehipaa/node";
+import TeachMeHipaa, { type Clock, type Transport } from "teachmehipaa";
 
 import type { Config } from "./config.js";
 import type { Log } from "./log.js";

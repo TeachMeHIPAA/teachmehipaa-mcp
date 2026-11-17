@@ -1,6 +1,6 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { TeachMeHipaaError } from "@teachmehipaa/node";
-import type TeachMeHipaa from "@teachmehipaa/node";
+import { TeachMeHipaaError } from "teachmehipaa";
+import type TeachMeHipaa from "teachmehipaa";
 import type * as z from "zod";
 
 import type { Environment } from "./config.js";

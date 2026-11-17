@@ -19,7 +19,7 @@ Security fixes are released for the latest major version.
 ## How the server handles secrets and learner data
 
 - It reads the client secret from its environment and passes it only to
-  `@teachmehipaa/node`, which sends it only to the token endpoint.
+  `teachmehipaa`, which sends it only to the token endpoint.
 - It never writes the secret, an access token or a request or response body
   to stdout, stderr or disk. Its stderr log holds method, path without the
   query, status, latency, request id, and the tool name, error class, status

@@ -3,7 +3,7 @@ import {
   RateLimitError,
   TeachMeHipaaError,
   type FieldError,
-} from "@teachmehipaa/node";
+} from "teachmehipaa";
 
 import type { Environment } from "./config.js";
 

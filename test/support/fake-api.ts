@@ -1,5 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import type { Clock, Transport, TransportRequest } from "@teachmehipaa/node";
+import type { Clock, Transport, TransportRequest } from "teachmehipaa";
 
 import { createClient } from "../../src/client.js";
 import type { Config } from "../../src/config.js";
