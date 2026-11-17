@@ -13,7 +13,7 @@ import {
   TeachMeHipaaError,
   TimeoutError,
   type FieldError,
-} from "@teachmehipaa/node";
+} from "teachmehipaa";
 import { describe, expect, it } from "vitest";
 
 import { describeError } from "../src/errors.js";

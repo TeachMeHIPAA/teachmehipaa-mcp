@@ -27,23 +27,38 @@ jobs:
         with:
           path: teachmehipaa-mcp
           persist-credentials: false
-      # @teachmehipaa/node is not on npm yet: build it from its main branch
-      # and install the packed tarball (see CONTRIBUTING.md).
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # No npm cache: there is no lockfile (see .npmrc).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      # Install the SDK from the registry once it is published there. Until
+      # then, build it from its main branch (see CONTRIBUTING.md).
+      - name: Choose the SDK source
+        id: sdk
+        run: |
+          if npm view 'teachmehipaa@^1.0.0' version > /dev/null 2>&1; then
+            echo "source=registry" >> "$GITHUB_OUTPUT"
+          else
+            echo "source=checkout" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.sdk.outputs.source == 'checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: TeachMeHIPAA/teachmehipaa-node
           ref: main
           path: teachmehipaa-node
           persist-credentials: false
-      # No npm cache: there is no lockfile until the SDK is published.
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ matrix.node }}
       - name: Build the SDK
+        if: steps.sdk.outputs.source == 'checkout'
         working-directory: teachmehipaa-node
         run: npm ci && npm run build
-      - name: Install dependencies with the local SDK
-        run: scripts/use-local-sdk.sh ../teachmehipaa-node
+      - name: Install dependencies
+        run: |
+          if [ "${{ steps.sdk.outputs.source }}" = registry ]; then
+            npm install
+          else
+            scripts/use-local-sdk.sh ../teachmehipaa-node
+          fi
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

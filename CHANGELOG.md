@@ -6,10 +6,15 @@ All notable changes to this server are documented here. It follows
 
 ## [Unreleased]
 
-The first release, to ship when the Developer API launches, after
-`@teachmehipaa/node` 1.0.0 is on npm.
+The first release, `0.1.0`, published by hand once `teachmehipaa` 1.0.0 is
+on npm; later releases go through the Release workflow.
 
 ### Added
+
+- A README that leads with the hosted server and links to the setup guide
+  and tool list in the developer reference, at
+  [Use with AI assistants](https://api.tme.so/developer), then covers the
+  local server for Claude Code, Claude Desktop, Cursor and VS Code.
 
 - `teachmehipaa-mcp`, a local (stdio) MCP server for one organization's
   API client, published as `@teachmehipaa/mcp`.
@@ -21,7 +26,7 @@ The first release, to ship when the Developer API launches, after
   a one-line text answer and the full record as `structuredContent`, MCP
   annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`,
   `openWorldHint`) and the scopes it needs in its description.
-- All HTTP through `@teachmehipaa/node`: client credentials with a cached
+- All HTTP through `teachmehipaa`: client credentials with a cached
   token, the organization read from the token, retries, and an
   `Idempotency-Key` on every write that takes one. `update_learner` reads
   the learner's ETag and sends it as `If-Match`.

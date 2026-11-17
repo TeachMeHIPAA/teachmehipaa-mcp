@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Installs @teachmehipaa/node from a local checkout instead of npm.
+# Installs teachmehipaa from a local checkout instead of npm.
 #
-# The SDK is not on npm yet, so `npm ci` and a plain `npm install` cannot
-# resolve the `@teachmehipaa/node` dependency. This script packs a built SDK
-# checkout and installs the tarball together with every other dependency,
-# without writing it to package.json.
+# While `teachmehipaa` is not on npm, `npm ci` and a plain `npm install`
+# cannot resolve it. Once it is published, use `npm install` instead. This
+# script packs a built SDK checkout and installs the tarball together with
+# every other dependency, without writing it to package.json.
 #
 # Usage: scripts/use-local-sdk.sh [path-to-teachmehipaa-node]
 #        (default: ../teachmehipaa-node)
@@ -38,4 +38,4 @@ tarball="$(cd "${sdk_dir}" && npm pack --ignore-scripts --silent --pack-destinat
 cd "${repo_root}"
 npm install --no-save --no-audit --no-fund "${pack_dir}/${tarball}"
 
-echo "use-local-sdk: installed @teachmehipaa/node from ${sdk_dir}" >&2
+echo "use-local-sdk: installed teachmehipaa from ${sdk_dir}" >&2

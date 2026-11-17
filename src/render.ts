@@ -11,7 +11,7 @@ import type {
   LearnerWriteResult,
   SeatsInventory,
   TokenIntrospection,
-} from "@teachmehipaa/node";
+} from "teachmehipaa";
 
 import type { Environment } from "./config.js";
 
