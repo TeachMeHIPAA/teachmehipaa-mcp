@@ -2,13 +2,12 @@ name: Release
 
 # Manual only. A run without `publish` checks and packs the release but
 # publishes nothing; with it, it also publishes to npm through trusted
-# publishing. package.json keeps "private": true until launch, so even a
-# mistaken `publish` run fails at `npm publish` (see CONTRIBUTING.md).
+# publishing, from the `npm` environment (see CONTRIBUTING.md).
 on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish to npm (fails while package.json is private)
+        description: Publish to npm
         type: boolean
         default: false
 
@@ -31,21 +30,35 @@ jobs:
         with:
           path: teachmehipaa-mcp
           persist-credentials: false
-      # Until @teachmehipaa/node is on npm, install it from its main branch.
-      # Switch to `npm ci` at launch (CONTRIBUTING.md, Releasing).
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Choose the SDK source
+        id: sdk
+        run: |
+          if npm view 'teachmehipaa@^1.0.0' version > /dev/null 2>&1; then
+            echo "source=registry" >> "$GITHUB_OUTPUT"
+          else
+            echo "source=checkout" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.sdk.outputs.source == 'checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: TeachMeHIPAA/teachmehipaa-node
           ref: main
           path: teachmehipaa-node
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 22
       - name: Build the SDK
+        if: steps.sdk.outputs.source == 'checkout'
         working-directory: teachmehipaa-node
         run: npm ci && npm run build
-      - run: scripts/use-local-sdk.sh ../teachmehipaa-node
+      - name: Install dependencies
+        run: |
+          if [ "${{ steps.sdk.outputs.source }}" = registry ]; then
+            npm install
+          else
+            scripts/use-local-sdk.sh ../teachmehipaa-node
+          fi
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
@@ -58,6 +71,9 @@ jobs:
     needs: verify
     if: ${{ inputs.publish }}
     runs-on: ubuntu-latest
+    # The npm trusted publisher is pinned to this environment, so only a job
+    # that names it can mint a publish credential.
+    environment: npm
     permissions:
       contents: read
       # npm trusted publishing exchanges this OIDC token for a short-lived
@@ -71,20 +87,36 @@ jobs:
         with:
           path: teachmehipaa-mcp
           persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: TeachMeHIPAA/teachmehipaa-node
-          ref: main
-          path: teachmehipaa-node
-          persist-credentials: false
       # Trusted publishing needs npm 11.5.1 or newer, which Node 24 ships.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
+      - name: Choose the SDK source
+        id: sdk
+        run: |
+          if npm view 'teachmehipaa@^1.0.0' version > /dev/null 2>&1; then
+            echo "source=registry" >> "$GITHUB_OUTPUT"
+          else
+            echo "source=checkout" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.sdk.outputs.source == 'checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: TeachMeHIPAA/teachmehipaa-node
+          ref: main
+          path: teachmehipaa-node
+          persist-credentials: false
       - name: Build the SDK
+        if: steps.sdk.outputs.source == 'checkout'
         working-directory: teachmehipaa-node
         run: npm ci && npm run build
-      - run: scripts/use-local-sdk.sh ../teachmehipaa-node
+      - name: Install dependencies
+        run: |
+          if [ "${{ steps.sdk.outputs.source }}" = registry ]; then
+            npm install
+          else
+            scripts/use-local-sdk.sh ../teachmehipaa-node
+          fi
       - run: npm run build
-      - run: npm publish --provenance --access public
+      - run: npm publish
