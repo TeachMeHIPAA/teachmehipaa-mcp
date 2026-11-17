@@ -11,6 +11,10 @@ The first release, to ship when the Developer API launches, after
 
 ### Added
 
+- A short README that links to the setup guide and tool list in the hosted
+  developer docs, at
+  [Use with AI assistants](https://docs.teachmehipaa.com/api#description/use-with-ai-assistants).
+
 - `teachmehipaa-mcp`, a local (stdio) MCP server for one organization's
   API client, published as `@teachmehipaa/mcp`.
 - 16 tools: `whoami`, `list_courses`, `get_compliance_summary`,

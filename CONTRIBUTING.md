@@ -63,7 +63,8 @@ npm run test:smoke  # spawns dist/cli.js over stdio; run after build
   the model can act on. Never let one escape as a protocol error.
 - Tool names, titles, descriptions, scopes and annotations are what MCP
   clients and models see. Changing one is a visible change: update the
-  README's tool table and the changelog.
+  changelog, and the tool list in the hosted docs
+  (<https://docs.teachmehipaa.com/api#description/use-with-ai-assistants>).
 
 ## Tests
 
