@@ -241,7 +241,9 @@
               "api_client.revoked",
               "learner.updated",
               "learner.launch_link_created",
-              "api_client.updated"
+              "api_client.updated",
+              "oauth_grant.created",
+              "oauth_grant.revoked"
             ]
           },
           "transition": {
