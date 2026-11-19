@@ -47,6 +47,8 @@ const AUDIT_EVENT_TYPES = [
   "learner.updated",
   "learner.launch_link_created",
   "api_client.updated",
+  "oauth_grant.created",
+  "oauth_grant.revoked",
 ] as const;
 
 const AUDIT_TRANSITIONS = [

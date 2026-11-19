@@ -11,6 +11,10 @@ on npm; later releases go through the Release workflow.
 
 ### Added
 
+- `list_audit_events` filters on `oauth_grant.created` and
+  `oauth_grant.revoked`: an admin connecting or disconnecting an AI assistant
+  through browser sign-in on the hosted server.
+
 - A README that leads with the hosted server and links to the setup guide
   and tool list in the developer reference, at
   [Use with AI assistants](https://api.tme.so/developer), then covers the
